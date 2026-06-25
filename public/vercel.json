@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/heatmap",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/stocks/:symbol",
+      "destination": "/stock-detail.html"
+    }
+  ]
+}

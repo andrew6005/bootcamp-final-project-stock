@@ -21,7 +21,6 @@ target/
 
 # Node / Vercel
 node_modules/
-public/
 
 # OS
 .DS_Store

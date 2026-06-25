@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${symbol} + ' Detail'">Stock Detail</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="detail-page">
+<div class="detail-shell">
+    <header class="detail-header">
+        <a class="back-toggle" href="/heatmap" aria-label="Back to heatmap">
+            <span aria-hidden="true"></span>
+        </a>
+        <span class="chart-icon" aria-hidden="true"></span>
+    </header>
+
+    <main class="candle-terminal">
+        <section class="quote-strip">
+            <div>
+                <strong>Last <span id="lastPrice">Loading</span></strong>
+                <strong>Change <span id="changeValue">0.000 (0.00%)</span></strong>
+            </div>
+            <div class="update-times">
+                <span id="updatedAt">Updated: --</span>
+                <span id="nextRefresh">Refreshes every 5 minutes</span>
+            </div>
+        </section>
+
+        <section class="chart-meta">
+            <div>
+                <strong id="stockName" th:text="${symbol} + '.US'">TSLA.US</strong>
+                <span>6 months (daily)</span>
+            </div>
+            <span class="copyright">AASTOCKS.com Copyright © 4</span>
+        </section>
+
+        <div id="candleChart"></div>
+        <section class="ohlc-panel" aria-label="OHLCV data">
+            <div class="ohlc-summary">
+                <div>
+                    <span>Date</span>
+                    <strong id="ohlcDate">--</strong>
+                </div>
+                <div>
+                    <span>Open</span>
+                    <strong id="ohlcOpen">--</strong>
+                </div>
+                <div>
+                    <span>High</span>
+                    <strong id="ohlcHigh">--</strong>
+                </div>
+                <div>
+                    <span>Low</span>
+                    <strong id="ohlcLow">--</strong>
+                </div>
+                <div>
+                    <span>Close</span>
+                    <strong id="ohlcClose">--</strong>
+                </div>
+                <div>
+                    <span>Volume</span>
+                    <strong id="ohlcVolume">--</strong>
+                </div>
+            </div>
+
+            <table class="ohlc-table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Open</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Close</th>
+                    <th>Volume</th>
+                </tr>
+                </thead>
+                <tbody id="ohlcRows"></tbody>
+            </table>
+        </section>
+        <button class="refresh-chart" type="button" onclick="loadQuote()">Refresh</button>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    const SYMBOL = /*[[${symbol}]]*/ '' ;
+</script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/detail.js"></script>
+</body>
+</html>

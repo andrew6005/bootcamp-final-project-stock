@@ -6,11 +6,11 @@ Use these Vercel project settings:
 Framework Preset: Other
 Root Directory: ./
 Build Command: npm run build:vercel
-Output Directory: src/main/resources/static
+Output Directory: static
 ```
 
 The app entry file is:
 
 ```text
-src/main/resources/static/index.html
+static/index.html
 ```

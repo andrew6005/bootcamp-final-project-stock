@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Heatmap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="page-shell">
+    <header class="intro-header">
+        <span class="chart-icon" aria-hidden="true"></span>
+    </header>
+
+    <main class="heatmap-frame">
+        <div class="empty-state" th:if="${#lists.isEmpty(companies)}">
+            <h2>No companies found</h2>
+            <p>Restart the app so the sample stock list can be added, or add companies to the database.</p>
+        </div>
+
+        <div class="heatmap-board" id="heatmap" th:unless="${#lists.isEmpty(companies)}">
+            <script id="initialCompanies" type="application/json" th:inline="javascript">
+                /*[[${companies}]]*/ []
+            </script>
+        </div>
+
+        <footer class="heatmap-footer" th:unless="${#lists.isEmpty(companies)}">
+            <div class="heatmap-help">
+                <strong>ⓘ</strong>
+                <span>Click a ticker to open detail. Hover over a tile to see the company name.</span>
+            </div>
+            <div class="legend">
+                <span class="legend-down-3">-3%</span>
+                <span class="legend-down-2">-2%</span>
+                <span class="legend-down-1">-1%</span>
+                <span class="legend-flat">0%</span>
+                <span class="legend-up-1">+1%</span>
+                <span class="legend-up-2">+2%</span>
+                <span class="legend-up-3">+3%</span>
+            </div>
+        </footer>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/heatmap.js"></script>
+</body>
+</html>

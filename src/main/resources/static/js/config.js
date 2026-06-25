@@ -1,0 +1,1 @@
+window.STOCKMAP_API_BASE_URL = window.STOCKMAP_API_BASE_URL || "";

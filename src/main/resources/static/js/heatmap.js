@@ -1,5 +1,5 @@
 const FIVE_MINUTES = 5 * 60 * 1000;
-const API_BASE_URL = "https://stockmap-api.onrender.com";
+const API_BASE_URL = window.STOCKMAP_API_BASE_URL || "";
 
 const sectorNames = {
     Automotive: "Consumer Cyclical",

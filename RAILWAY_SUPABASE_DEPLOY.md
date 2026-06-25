@@ -4,7 +4,25 @@ Use Supabase for PostgreSQL and Railway for the Spring Boot API.
 
 ## 1. Supabase
 
-1. Create a Supabase project.
+Project dashboard:
+
+```text
+https://supabase.com/dashboard/project/lhohtjjxcrguyrweytkj
+```
+
+Project ref:
+
+```text
+lhohtjjxcrguyrweytkj
+```
+
+Direct database host:
+
+```text
+db.lhohtjjxcrguyrweytkj.supabase.co
+```
+
+1. Open your Supabase project.
 2. Open `database/schema.sql`.
 3. In Supabase SQL Editor, run the SQL after removing this line:
 
@@ -17,10 +35,10 @@ CREATE DATABASE bootcamp;
 Recommended JDBC format:
 
 ```text
-jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres?sslmode=require
+jdbc:postgresql://db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres?sslmode=require
 ```
 
-If you use Supabase pooler port `6543`, keep the same `?sslmode=require`.
+Use `postgres` as the username for the direct connection. If Supabase gives you a pooler connection instead, use the exact pooler host and username shown in the Supabase `Connect` panel.
 
 ## 2. Railway Backend
 
@@ -35,9 +53,9 @@ Railway will use `railway.json` and the Dockerfile automatically.
 Set these Railway variables:
 
 ```text
-DB_URL=jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres?sslmode=require
-DB_USERNAME=YOUR_SUPABASE_USERNAME
-DB_PASSWORD=YOUR_SUPABASE_PASSWORD
+DB_URL=jdbc:postgresql://db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres?sslmode=require
+DB_USERNAME=postgres
+DB_PASSWORD=YOUR_SUPABASE_DATABASE_PASSWORD
 FINNHUB_API_KEY=YOUR_FINNHUB_API_KEY
 ```
 
@@ -69,15 +87,15 @@ Then redeploy Vercel. The static frontend will call the Railway API.
 
 ## 4. Data Loading
 
-Run the Python loaders against Supabase:
+Run the Python loaders against your Supabase database:
 
 ```bash
-DB_URL="postgresql+psycopg2://YOUR_SUPABASE_USERNAME:YOUR_SUPABASE_PASSWORD@YOUR_SUPABASE_HOST:5432/postgres" \
+DB_URL="postgresql+psycopg2://postgres:YOUR_SUPABASE_DATABASE_PASSWORD@db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres" \
 python python/prepare_1_load_snp500_symbol.py
 ```
 
 ```bash
-DB_URL="postgresql+psycopg2://YOUR_SUPABASE_USERNAME:YOUR_SUPABASE_PASSWORD@YOUR_SUPABASE_HOST:5432/postgres" \
+DB_URL="postgresql+psycopg2://postgres:YOUR_SUPABASE_DATABASE_PASSWORD@db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres" \
 python python/prepare_2_load_ohlcv_data.py
 ```
 

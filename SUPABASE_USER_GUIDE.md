@@ -90,13 +90,25 @@ The Java app still runs from VS Code, Maven, Docker, Render, Railway, or another
 
 ## Step 1: Create a Supabase Project
 
-1. Go to `https://supabase.com/dashboard`.
-2. Click `New project`.
-3. Choose an organization.
-4. Enter a project name, for example `stock-final-project`.
-5. Set a database password and save it somewhere safe.
-6. Choose a region close to you.
-7. Click `Create new project`.
+Your Supabase project is:
+
+```text
+https://supabase.com/dashboard/project/lhohtjjxcrguyrweytkj
+```
+
+Project ref:
+
+```text
+lhohtjjxcrguyrweytkj
+```
+
+Direct database host:
+
+```text
+db.lhohtjjxcrguyrweytkj.supabase.co
+```
+
+Keep your database password private. Do not commit it to GitHub.
 
 ## Step 2: Create Tables in Supabase
 
@@ -130,7 +142,13 @@ Supabase already created the database for you.
 Your JDBC URL should look similar to this:
 
 ```text
-jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres
+jdbc:postgresql://db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres?sslmode=require
+```
+
+For the direct connection, the username is usually:
+
+```text
+postgres
 ```
 
 For pooler connections, the username may look like:
@@ -150,9 +168,9 @@ cd "/Users/andrew/Documents/andrew的MacBook Air/finalproject/stock/2026-06-15/f
 Then start Spring Boot with Supabase settings:
 
 ```bash
-DB_URL="jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres" \
-DB_USERNAME="YOUR_SUPABASE_USERNAME" \
-DB_PASSWORD="YOUR_SUPABASE_PASSWORD" \
+DB_URL="jdbc:postgresql://db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres?sslmode=require" \
+DB_USERNAME="postgres" \
+DB_PASSWORD="YOUR_SUPABASE_DATABASE_PASSWORD" \
 mvn spring-boot:run
 ```
 
@@ -170,7 +188,7 @@ source bootcamp-env/bin/activate
 Run the first Python file with the Supabase database URL:
 
 ```bash
-DB_URL="postgresql+psycopg2://YOUR_SUPABASE_USERNAME:YOUR_SUPABASE_PASSWORD@YOUR_SUPABASE_HOST:5432/postgres" \
+DB_URL="postgresql+psycopg2://postgres:YOUR_SUPABASE_DATABASE_PASSWORD@db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres" \
 python python/prepare_1_load_snp500_symbol.py
 ```
 
@@ -179,7 +197,7 @@ python python/prepare_1_load_snp500_symbol.py
 Run:
 
 ```bash
-DB_URL="postgresql+psycopg2://YOUR_SUPABASE_USERNAME:YOUR_SUPABASE_PASSWORD@YOUR_SUPABASE_HOST:5432/postgres" \
+DB_URL="postgresql+psycopg2://postgres:YOUR_SUPABASE_DATABASE_PASSWORD@db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres" \
 python python/prepare_2_load_ohlcv_data.py
 ```
 
@@ -205,9 +223,9 @@ You should see stock symbols and OHLCV rows.
 Start Java again with Supabase settings:
 
 ```bash
-DB_URL="jdbc:postgresql://YOUR_SUPABASE_HOST:5432/postgres" \
-DB_USERNAME="YOUR_SUPABASE_USERNAME" \
-DB_PASSWORD="YOUR_SUPABASE_PASSWORD" \
+DB_URL="jdbc:postgresql://db.lhohtjjxcrguyrweytkj.supabase.co:5432/postgres?sslmode=require" \
+DB_USERNAME="postgres" \
+DB_PASSWORD="YOUR_SUPABASE_DATABASE_PASSWORD" \
 mvn spring-boot:run
 ```
 

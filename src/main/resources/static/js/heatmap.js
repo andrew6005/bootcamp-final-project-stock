@@ -1,10 +1,26 @@
 const FIVE_MINUTES = 5 * 60 * 1000;
+const API_BASE_URL = "https://stockmap-api.onrender.com";
 
 const sectorNames = {
     Automotive: "Consumer Cyclical",
     "Financial Services": "Financial",
     Semiconductors: "Technology"
 };
+
+const fallbackRows = [
+    { stockId: 1, symbol: "AAPL", name: "Apple Inc", marketCap: 3200000000000, industry: "Technology", price: 0, marketPriceChgPct: 1.18 },
+    { stockId: 2, symbol: "MSFT", name: "Microsoft Corporation", marketCap: 3100000000000, industry: "Technology", price: 0, marketPriceChgPct: 0.72 },
+    { stockId: 3, symbol: "NVDA", name: "NVIDIA Corporation", marketCap: 2800000000000, industry: "Semiconductors", price: 0, marketPriceChgPct: 2.14 },
+    { stockId: 4, symbol: "GOOGL", name: "Alphabet Inc", marketCap: 2100000000000, industry: "Communication Services", price: 0, marketPriceChgPct: -0.46 },
+    { stockId: 5, symbol: "AMZN", name: "Amazon.com Inc", marketCap: 1900000000000, industry: "Consumer Cyclical", price: 0, marketPriceChgPct: 0.31 },
+    { stockId: 6, symbol: "META", name: "Meta Platforms Inc", marketCap: 1300000000000, industry: "Communication Services", price: 0, marketPriceChgPct: -1.22 },
+    { stockId: 7, symbol: "TSLA", name: "Tesla, Inc", marketCap: 850000000000, industry: "Automotive", price: 0, marketPriceChgPct: 1.95 },
+    { stockId: 8, symbol: "JPM", name: "JPMorgan Chase", marketCap: 590000000000, industry: "Financial Services", price: 0, marketPriceChgPct: -0.84 },
+    { stockId: 9, symbol: "V", name: "Visa Inc", marketCap: 560000000000, industry: "Financial Services", price: 0, marketPriceChgPct: 0.56 },
+    { stockId: 10, symbol: "WMT", name: "Walmart Inc", marketCap: 520000000000, industry: "Consumer Defensive", price: 0, marketPriceChgPct: -0.18 },
+    { stockId: 11, symbol: "LLY", name: "Eli Lilly", marketCap: 760000000000, industry: "Healthcare", price: 0, marketPriceChgPct: 1.03 },
+    { stockId: 12, symbol: "XOM", name: "Exxon Mobil", marketCap: 470000000000, industry: "Energy", price: 0, marketPriceChgPct: -1.41 }
+];
 
 function normalizedSector(industry) {
     return sectorNames[industry] || industry || "Other";
@@ -162,11 +178,11 @@ function formatSigned(value) {
 
 async function loadHeatmap() {
     try {
-        const res = await fetch("/data/heatmap");
+        const res = await fetch(`${API_BASE_URL}/data/heatmap`);
         if (!res.ok) throw new Error(`Heatmap request failed: ${res.status}`);
         drawHeatmap(await res.json());
     } catch (error) {
-        drawHeatmap(initialRows());
+        drawHeatmap(initialRows().length ? initialRows() : fallbackRows);
     }
 }
 

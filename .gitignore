@@ -19,6 +19,10 @@ bootcamp-env/
 target/
 .m2repo/
 
+# Node / Vercel
+node_modules/
+public/
+
 # OS
 .DS_Store
 

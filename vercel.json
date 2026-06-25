@@ -1,0 +1,18 @@
+{
+  "buildCommand": "rm -rf public && mkdir -p public && cp -R src/main/resources/static/* public/ && cp src/main/resources/templates/heatmap.html public/index.html && cp src/main/resources/templates/heatmap.html public/heatmap.html && cp src/main/resources/templates/stock-detail.html public/stock-detail.html",
+  "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/heatmap",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/stocks/:symbol",
+      "destination": "/stock-detail.html"
+    }
+  ]
+}

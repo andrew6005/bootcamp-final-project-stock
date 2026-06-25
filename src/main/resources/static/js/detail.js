@@ -1,16 +1,28 @@
 const FIVE_MINUTES = 5 * 60 * 1000;
+const API_BASE_URL = "https://stockmap-api.onrender.com";
+const ACTIVE_SYMBOL = resolveSymbol();
+
+function resolveSymbol() {
+    if (typeof SYMBOL !== "undefined" && SYMBOL) return SYMBOL;
+
+    const match = window.location.pathname.match(/\/stocks\/([^/]+)/);
+    if (match) return decodeURIComponent(match[1]).toUpperCase();
+
+    const params = new URLSearchParams(window.location.search);
+    return (params.get("symbol") || "TSLA").toUpperCase();
+}
 
 async function loadQuote() {
     let payload;
     try {
-        const res = await fetch(`/data/ohlc?symbol=${encodeURIComponent(SYMBOL)}`);
+        const res = await fetch(`${API_BASE_URL}/data/ohlc?symbol=${encodeURIComponent(ACTIVE_SYMBOL)}`);
         if (!res.ok) throw new Error(`OHLC request failed: ${res.status}`);
         payload = await res.json();
     } catch (error) {
         payload = {
-            symbol: SYMBOL,
-            companyName: companyName(SYMBOL),
-            ohlcs: buildFallbackSeries(SYMBOL)
+            symbol: ACTIVE_SYMBOL,
+            companyName: companyName(ACTIVE_SYMBOL),
+            ohlcs: buildFallbackSeries(ACTIVE_SYMBOL)
         };
     }
 
@@ -27,7 +39,7 @@ async function loadQuote() {
     changeValue.className = percent >= 0 ? "positive" : "negative";
     document.getElementById("updatedAt").textContent = `Updated: ${formatUpdatedDate(new Date())}`;
     document.getElementById("nextRefresh").textContent = `Next refresh: ${formatClock(new Date(Date.now() + FIVE_MINUTES))}`;
-    document.getElementById("stockName").textContent = `${payload.companyName || companyName(SYMBOL)} (${SYMBOL}.US)`;
+    document.getElementById("stockName").textContent = `${payload.companyName || companyName(ACTIVE_SYMBOL)} (${ACTIVE_SYMBOL}.US)`;
 
     drawCandlestickChart(series);
     renderOhlcData(series);
@@ -57,7 +69,7 @@ function drawCandlestickChart(series) {
         close: series.map(row => row.close),
         increasing: { line: { color: "#6ee85f" }, fillcolor: "#6ee85f" },
         decreasing: { line: { color: "#ef4444" }, fillcolor: "#ef4444" },
-        name: SYMBOL,
+        name: ACTIVE_SYMBOL,
         xaxis: "x",
         yaxis: "y"
     };

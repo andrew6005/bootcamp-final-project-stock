@@ -1,0 +1,26 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bootcamp}
+    username: ${DB_USERNAME:${USER:postgres}}
+    password: ${DB_PASSWORD:admin1234}
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+finnhub:
+  api:
+    key: ${FINNHUB_API_KEY:d8l5u9hr01qut1f96o00d8l5u9hr01qut1f96o0g}

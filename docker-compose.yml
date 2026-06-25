@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-container
+    environment:
+      POSTGRES_DB: bootcamp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+
+  heatmap-ui-app:
+    build: .
+    image: stockmap:0.0.1
+    container_name: heatmap-ui-app
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/bootcamp
+      DB_USERNAME: postgres
+      DB_PASSWORD: admin1234
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-d8l5u9hr01qut1f96o00d8l5u9hr01qut1f96o0g}
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres-data:

@@ -42,7 +42,19 @@ Use `postgres` as the username for the direct connection. If Supabase gives you 
 
 ## 2. Railway Backend
 
-Create a Railway project from this GitHub repository:
+Railway project dashboard:
+
+```text
+https://railway.com/project/f662d9c2-4b16-43d9-ab80-a2d6076a83ee
+```
+
+Project ID:
+
+```text
+f662d9c2-4b16-43d9-ab80-a2d6076a83ee
+```
+
+Connect this Railway project to the GitHub repository:
 
 ```text
 https://github.com/andrew6005/bootcamp-final-project-stock
@@ -74,6 +86,8 @@ After deploy, test:
 https://YOUR_RAILWAY_APP.up.railway.app/data/heatmap
 https://YOUR_RAILWAY_APP.up.railway.app/data/ohlc?symbol=TSLA
 ```
+
+Use the public Railway domain from the deployed service. It is different from the Railway dashboard URL.
 
 ## 3. Vercel Frontend
 

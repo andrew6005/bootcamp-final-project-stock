@@ -12,7 +12,7 @@
     </header>
 
     <main class="heatmap-frame">
-        <div class="empty-state" th:if="${#lists.isEmpty(companies)}">
+        <div class="empty-state" id="emptyState" hidden th:if="${#lists.isEmpty(companies)}">
             <h2>No companies found</h2>
             <p>Restart the app so the sample stock list can be added, or add companies to the database.</p>
         </div>

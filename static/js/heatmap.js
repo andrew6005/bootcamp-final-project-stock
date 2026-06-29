@@ -78,7 +78,12 @@ function buildHierarchy(rows) {
 
 function drawHeatmap(rows) {
     const board = document.getElementById("heatmap");
-    if (!board || !rows.length) return;
+    const emptyState = document.getElementById("emptyState");
+    const hasRows = Array.isArray(rows) && rows.length > 0;
+
+    if (emptyState) emptyState.hidden = hasRows;
+    if (board) board.hidden = !hasRows;
+    if (!board || !hasRows) return;
 
     const width = board.clientWidth || 1200;
     const height = Math.max(board.clientHeight || 650, 560);
@@ -180,7 +185,8 @@ async function loadHeatmap() {
     try {
         const res = await fetch(`${API_BASE_URL}/data/heatmap`);
         if (!res.ok) throw new Error(`Heatmap request failed: ${res.status}`);
-        drawHeatmap(await res.json());
+        const rows = await res.json();
+        drawHeatmap(Array.isArray(rows) && rows.length ? rows : fallbackRows);
     } catch (error) {
         drawHeatmap(initialRows().length ? initialRows() : fallbackRows);
     }

@@ -211,7 +211,7 @@ public class StockService {
         return saved;
     }
 
-    @Scheduled(fixedDelay = 3600000, initialDelay = 15000)
+    @Scheduled(fixedDelay = 300000, initialDelay = 15000)
     public void refreshAllQuotes() {
         for (Company company : companyRepository.findAll()) {
             try {

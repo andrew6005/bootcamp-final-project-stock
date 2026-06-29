@@ -35,6 +35,20 @@ public class StockService {
     private static final Duration HEATMAP_CACHE_TTL = Duration.ofMinutes(5);
     private static final Duration COMPANY_CACHE_TTL = Duration.ofHours(6);
     private static final Duration OHLC_CACHE_TTL = Duration.ofHours(12);
+    private static final Map<String, BigDecimal> SAMPLE_CHANGE_PERCENT = Map.ofEntries(
+            Map.entry("AAPL", BigDecimal.valueOf(3.14)),
+            Map.entry("MSFT", BigDecimal.valueOf(5.71)),
+            Map.entry("NVDA", BigDecimal.valueOf(-1.64)),
+            Map.entry("GOOGL", BigDecimal.valueOf(-1.84)),
+            Map.entry("AMZN", BigDecimal.valueOf(2.50)),
+            Map.entry("META", BigDecimal.valueOf(1.36)),
+            Map.entry("TSLA", BigDecimal.valueOf(1.22)),
+            Map.entry("JPM", BigDecimal.valueOf(-1.81)),
+            Map.entry("V", BigDecimal.valueOf(1.73)),
+            Map.entry("WMT", BigDecimal.valueOf(-0.08)),
+            Map.entry("LLY", BigDecimal.valueOf(7.13)),
+            Map.entry("XOM", BigDecimal.valueOf(-0.73))
+    );
 
     private final CompanyRepository companyRepository;
     private final StockQuoteRepository quoteRepository;
@@ -272,13 +286,16 @@ public class StockService {
     }
 
     private StockQuote fallbackQuote(String symbol) {
-        int hash = Math.abs(symbol.toUpperCase().hashCode());
+        String normalizedSymbol = normalizeSymbol(symbol);
+        int hash = Math.abs(normalizedSymbol.hashCode());
         BigDecimal currentPrice = BigDecimal.valueOf(60 + hash % 420).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal changePercent = BigDecimal.valueOf(((hash % 700) - 350) / 100.0).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal changePercent = SAMPLE_CHANGE_PERCENT
+                .getOrDefault(normalizedSymbol, BigDecimal.valueOf(((hash % 700) - 350) / 100.0))
+                .setScale(2, RoundingMode.HALF_UP);
         BigDecimal changeAmount = currentPrice.multiply(changePercent).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
         StockQuote quote = new StockQuote();
-        quote.setSymbol(symbol.toUpperCase());
+        quote.setSymbol(normalizedSymbol);
         quote.setCurrentPrice(currentPrice);
         quote.setChangePercent(changePercent);
         quote.setChangeAmount(changeAmount);

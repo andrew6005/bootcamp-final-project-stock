@@ -5,7 +5,7 @@ const root = path.resolve(__dirname, "..");
 const publicDir = path.join(root, "public");
 const staticDir = path.join(root, "src/main/resources/static");
 const templateDir = path.join(root, "src/main/resources/templates");
-const apiBaseUrl = process.env.STOCKMAP_API_BASE_URL || "https://stockmap-api.onrender.com";
+const apiBaseUrl = process.env.STOCKMAP_CLIENT_API_BASE_URL || "/api";
 
 fs.rmSync(publicDir, { recursive: true, force: true });
 fs.mkdirSync(publicDir, { recursive: true });

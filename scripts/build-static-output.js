@@ -4,7 +4,7 @@ const path = require("path");
 const root = path.resolve(__dirname, "..");
 const sourceDir = path.join(root, "src/main/resources/static");
 const outputDir = path.join(root, "static");
-const apiBaseUrl = process.env.STOCKMAP_API_BASE_URL || "https://stockmap-api.onrender.com";
+const apiBaseUrl = process.env.STOCKMAP_CLIENT_API_BASE_URL || "/api";
 
 fs.rmSync(outputDir, { recursive: true, force: true });
 fs.cpSync(sourceDir, outputDir, { recursive: true });

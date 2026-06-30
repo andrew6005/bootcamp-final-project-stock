@@ -97,7 +97,7 @@ In Vercel project settings, add this environment variable:
 STOCKMAP_API_BASE_URL=https://YOUR_RAILWAY_APP.up.railway.app
 ```
 
-Then redeploy Vercel. The static frontend will call the Railway API.
+Then redeploy Vercel. The static frontend calls Vercel's same-origin `/api/...` proxy, and the proxy forwards those requests to the Railway API.
 
 ## 4. Data Loading
 

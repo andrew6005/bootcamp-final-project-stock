@@ -15,7 +15,7 @@ function resolveSymbol() {
 async function loadQuote() {
     let payload;
     try {
-        const res = await fetch(`${API_BASE_URL}/data/ohlc?symbol=${encodeURIComponent(ACTIVE_SYMBOL)}`);
+        const res = await fetch(`${API_BASE_URL}/data/ohlc?symbol=${encodeURIComponent(ACTIVE_SYMBOL)}&t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`OHLC request failed: ${res.status}`);
         payload = await res.json();
     } catch (error) {

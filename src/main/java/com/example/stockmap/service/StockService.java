@@ -81,7 +81,7 @@ public class StockService {
     }
 
     public StockQuote refreshQuote(String symbol) {
-        StockQuote quote = finnhubService.getQuote(symbol);
+        StockQuote quote = finnhubService.getQuote(normalizeSymbol(symbol));
         StockQuote saved = quoteRepository.save(quote);
         redisCacheService.put(quoteCacheKey(symbol), saved, QUOTE_CACHE_TTL);
         redisCacheService.evict("stocks:heatmap");
@@ -93,13 +93,8 @@ public class StockService {
         return redisCacheService.get(cacheKey, new TypeReference<StockQuote>() {})
                 .orElseGet(() -> {
                     StockQuote quote = quoteRepository.findTopBySymbolIgnoreCaseOrderByUpdateTimeDesc(symbol)
-                            .orElseGet(() -> {
-                                try {
-                                    return refreshQuote(symbol);
-                                } catch (Exception e) {
-                                    return fallbackQuote(symbol);
-                                }
-                            });
+                            .map(savedQuote -> isFreshQuote(savedQuote) ? savedQuote : refreshQuoteOrFallback(symbol, savedQuote))
+                            .orElseGet(() -> refreshQuoteOrFallback(symbol, fallbackQuote(symbol)));
                     redisCacheService.put(cacheKey, quote, QUOTE_CACHE_TTL);
                     return quote;
                 });
@@ -305,6 +300,20 @@ public class StockService {
         quote.setPreviousClose(currentPrice.subtract(changeAmount));
         quote.setUpdateTime(LocalDateTime.now());
         return quote;
+    }
+
+    private StockQuote refreshQuoteOrFallback(String symbol, StockQuote fallback) {
+        try {
+            return refreshQuote(symbol);
+        } catch (Exception e) {
+            log.warn("Using cached/fallback quote for {} after refresh failed: {}", symbol, e.getMessage());
+            return fallback;
+        }
+    }
+
+    private boolean isFreshQuote(StockQuote quote) {
+        LocalDateTime updateTime = quote.getUpdateTime();
+        return updateTime != null && updateTime.isAfter(LocalDateTime.now().minus(QUOTE_CACHE_TTL));
     }
 
     private String quoteCacheKey(String symbol) {

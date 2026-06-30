@@ -240,7 +240,7 @@ function formatSigned(value) {
 
 async function loadHeatmap() {
     try {
-        const res = await fetch(`${API_BASE_URL}/data/heatmap`);
+        const res = await fetch(`${API_BASE_URL}/data/heatmap?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`Heatmap request failed: ${res.status}`);
         const rows = await res.json();
         drawHeatmap(Array.isArray(rows) && rows.length ? rows : fallbackRows);

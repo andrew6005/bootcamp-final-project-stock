@@ -1,6 +1,8 @@
 const DEFAULT_BACKEND_URL = "https://stockmap-api.onrender.com";
 
 module.exports = async function handler(req, res) {
+    res.setHeader("cache-control", "no-store");
+
     const backendUrl = (process.env.STOCKMAP_API_BASE_URL || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
     const path = Array.isArray(req.query.path) ? req.query.path.join("/") : req.query.path || "";
     const query = new URLSearchParams(req.query);

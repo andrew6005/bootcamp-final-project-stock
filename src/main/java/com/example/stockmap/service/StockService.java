@@ -81,10 +81,14 @@ public class StockService {
     }
 
     public StockQuote refreshQuote(String symbol) {
+        return refreshQuote(symbol, true);
+    }
+
+    private StockQuote refreshQuote(String symbol, boolean evictHeatmap) {
         StockQuote quote = finnhubService.getQuote(normalizeSymbol(symbol));
         StockQuote saved = quoteRepository.save(quote);
         redisCacheService.put(quoteCacheKey(symbol), saved, QUOTE_CACHE_TTL);
-        redisCacheService.evict("stocks:heatmap");
+        if (evictHeatmap) redisCacheService.evict("stocks:heatmap");
         return saved;
     }
 
@@ -93,8 +97,7 @@ public class StockService {
         return redisCacheService.get(cacheKey, new TypeReference<StockQuote>() {})
                 .orElseGet(() -> {
                     StockQuote quote = quoteRepository.findTopBySymbolIgnoreCaseOrderByUpdateTimeDesc(symbol)
-                            .map(savedQuote -> isFreshQuote(savedQuote) ? savedQuote : refreshQuoteOrFallback(symbol, savedQuote))
-                            .orElseGet(() -> refreshQuoteOrFallback(symbol, fallbackQuote(symbol)));
+                            .orElseGet(() -> fallbackQuote(symbol));
                     redisCacheService.put(cacheKey, quote, QUOTE_CACHE_TTL);
                     return quote;
                 });
@@ -222,9 +225,11 @@ public class StockService {
 
     @Scheduled(fixedDelay = 300000, initialDelay = 15000)
     public void refreshAllQuotes() {
+        boolean refreshedAnyQuote = false;
         for (Company company : companyRepository.findAll()) {
             try {
-                refreshQuote(company.getSymbol());
+                refreshQuote(company.getSymbol(), false);
+                refreshedAnyQuote = true;
                 Thread.sleep(FINNHUB_FREE_TIER_DELAY_MS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -234,6 +239,7 @@ public class StockService {
                 log.warn("API fail: {} - {}", company.getSymbol(), e.getMessage());
             }
         }
+        if (refreshedAnyQuote) redisCacheService.evict("stocks:heatmap");
     }
 
     private Company resolveCompany(Long id, String symbol) {
@@ -300,20 +306,6 @@ public class StockService {
         quote.setPreviousClose(currentPrice.subtract(changeAmount));
         quote.setUpdateTime(LocalDateTime.now());
         return quote;
-    }
-
-    private StockQuote refreshQuoteOrFallback(String symbol, StockQuote fallback) {
-        try {
-            return refreshQuote(symbol);
-        } catch (Exception e) {
-            log.warn("Using cached/fallback quote for {} after refresh failed: {}", symbol, e.getMessage());
-            return fallback;
-        }
-    }
-
-    private boolean isFreshQuote(StockQuote quote) {
-        LocalDateTime updateTime = quote.getUpdateTime();
-        return updateTime != null && updateTime.isAfter(LocalDateTime.now().minus(QUOTE_CACHE_TTL));
     }
 
     private String quoteCacheKey(String symbol) {

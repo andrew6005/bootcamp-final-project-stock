@@ -1,5 +1,6 @@
 const FIVE_MINUTES = 5 * 60 * 1000;
 const API_BASE_URL = window.STOCKMAP_API_BASE_URL || "";
+let currentRows = [];
 
 const sectorNames = {
     Automotive: "Consumer Cyclical",
@@ -243,12 +244,16 @@ async function loadHeatmap() {
         const res = await fetch(`${API_BASE_URL}/data/heatmap?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`Heatmap request failed: ${res.status}`);
         const rows = await res.json();
-        drawHeatmap(Array.isArray(rows) && rows.length ? rows : fallbackRows);
+        currentRows = Array.isArray(rows) && rows.length ? rows : fallbackRows;
+        drawHeatmap(currentRows);
     } catch (error) {
-        drawHeatmap(initialRows().length ? initialRows() : fallbackRows);
+        currentRows = initialRows().length ? initialRows() : fallbackRows;
+        drawHeatmap(currentRows);
     }
 }
 
-window.addEventListener("resize", () => loadHeatmap());
+window.addEventListener("resize", () => {
+    if (currentRows.length) drawHeatmap(currentRows);
+});
 loadHeatmap();
 setInterval(loadHeatmap, FIVE_MINUTES);

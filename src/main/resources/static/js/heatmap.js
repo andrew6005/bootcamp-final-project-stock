@@ -1,6 +1,10 @@
 const FIVE_MINUTES = 5 * 60 * 1000;
 const API_BASE_URL = window.STOCKMAP_API_BASE_URL || "";
+const FINNHUB_API_KEY = window.STOCKMAP_FINNHUB_API_KEY || "d91jb81r01qqfqkcgb20d91jb81r01qqfqkcgb2g";
+const FINNHUB_QUOTE_BATCH_SIZE = 5;
+const FINNHUB_QUOTE_BATCH_DELAY_MS = 500;
 let currentRows = [];
+let liveFallbackRun = 0;
 
 const sectorNames = {
     Automotive: "Consumer Cyclical",
@@ -256,7 +260,42 @@ function formatSigned(value) {
 
 function formatPrice(value) {
     const number = Number(value);
-    return Number.isFinite(number) && number > 0 ? `$${number.toFixed(2)}` : "Price unavailable";
+    return Number.isFinite(number) && number > 0 ? `$${number.toFixed(2)}` : "Loading price";
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchFinnhubQuote(symbol) {
+    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(FINNHUB_API_KEY)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Finnhub quote failed: ${res.status}`);
+    const quote = await res.json();
+    if (!Number.isFinite(Number(quote.c)) || Number(quote.c) <= 0) {
+        throw new Error(`Finnhub quote missing price for ${symbol}`);
+    }
+    return quote;
+}
+
+async function hydrateLiveFallbackQuotes(rows) {
+    const run = ++liveFallbackRun;
+    for (let i = 0; i < rows.length; i += FINNHUB_QUOTE_BATCH_SIZE) {
+        if (run !== liveFallbackRun) return;
+        const batch = rows.slice(i, i + FINNHUB_QUOTE_BATCH_SIZE);
+        await Promise.all(batch.map(async row => {
+            try {
+                const quote = await fetchFinnhubQuote(row.symbol);
+                row.price = quote.c;
+                row.marketPriceChg = quote.d;
+                row.marketPriceChgPct = quote.dp;
+            } catch (error) {
+                // Keep the existing fallback color/percent if a quote is rate-limited.
+            }
+        }));
+        drawHeatmap(currentRows);
+        await delay(FINNHUB_QUOTE_BATCH_DELAY_MS);
+    }
 }
 
 async function loadHeatmap() {
@@ -264,11 +303,13 @@ async function loadHeatmap() {
         const res = await fetch(`${API_BASE_URL}/data/heatmap?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`Heatmap request failed: ${res.status}`);
         const rows = await res.json();
+        liveFallbackRun++;
         currentRows = Array.isArray(rows) && rows.length ? rows : fallbackRows;
         drawHeatmap(currentRows);
     } catch (error) {
-        currentRows = initialRows().length ? initialRows() : fallbackRows;
+        currentRows = (initialRows().length ? initialRows() : fallbackRows).map(row => ({ ...row }));
         drawHeatmap(currentRows);
+        hydrateLiveFallbackQuotes(currentRows);
     }
 }
 

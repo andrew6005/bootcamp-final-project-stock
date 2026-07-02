@@ -24,4 +24,4 @@ spring:
 
 finnhub:
   api:
-    key: ${FINNHUB_API_KEY:d8l5u9hr01qut1f96o00d8l5u9hr01qut1f96o0g}
+    key: ${FINNHUB_API_KEY:d91jb81r01qqfqkcgb20d91jb81r01qqfqkcgb2g}

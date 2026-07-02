@@ -21,7 +21,14 @@ public class FinnhubService {
     @Value("${finnhub.api.key}")
     private String apiKey;
 
+    public boolean isConfigured() {
+        return apiKey != null && !apiKey.isBlank();
+    }
+
     public StockQuote getQuote(String symbol) {
+        if (!isConfigured()) {
+            throw new RuntimeException("FINNHUB_API_KEY is not configured");
+        }
         String url = "https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + apiKey;
         Map body = getForMap(url, symbol, "quote");
         if (body == null || body.get("c") == null) throw new RuntimeException("No quote API response for " + symbol);

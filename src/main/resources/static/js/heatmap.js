@@ -108,6 +108,11 @@ function fallbackPercent(symbol) {
     return ((hash % 700) - 350) / 100;
 }
 
+function percentOrFallback(value, symbol) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallbackPercent(symbol);
+}
+
 function colorForChange(percent) {
     const value = Math.max(-3, Math.min(3, Number(percent) || 0));
     if (value > 0.05) return d3.interpolateRgb("#1f7a3a", "#63d46e")(value / 3);
@@ -128,7 +133,7 @@ function buildHierarchy(rows) {
             children: children.map(row => ({
                 ...row,
                 value: Math.max(Number(row.marketCap) || 1, 1),
-                marketPriceChgPct: Number(row.marketPriceChgPct) || fallbackPercent(row.symbol)
+                marketPriceChgPct: percentOrFallback(row.marketPriceChgPct, row.symbol)
             }))
         }))
     };
@@ -190,7 +195,7 @@ function drawHeatmap(rows) {
         .attr("href", d => `/stocks/${d.data.symbol}`);
 
     leaves.append("title")
-        .text(d => `${d.data.name || d.data.symbol} | ${d.data.industry || "Other"} | ${formatSigned(d.data.marketPriceChgPct)}%`);
+        .text(d => `${d.data.name || d.data.symbol} | ${d.data.industry || "Other"} | ${formatPrice(d.data.price)} | ${formatSigned(d.data.marketPriceChgPct)}%`);
 
     leaves.append("rect")
         .attr("x", d => d.x0)
@@ -231,12 +236,27 @@ if (width < 35) {
                 .attr("font-size", Math.max(10, fontSize * .52))
                 .text(`${formatSigned(d.data.marketPriceChgPct)}%`);
         }
+
+        if (height >= 74 && width >= 54) {
+            group.append("text")
+                .attr("class", "price-label")
+                .attr("x", (d.x0 + d.x1) / 2)
+                .attr("y", (d.y0 + d.y1) / 2 + fontSize * 1.36)
+                .attr("fill", textColor(d.data.marketPriceChgPct))
+                .attr("font-size", Math.max(9, fontSize * .4))
+                .text(formatPrice(d.data.price));
+        }
     });
 }
 
 function formatSigned(value) {
     const number = Number(value) || 0;
     return `${number >= 0 ? "+" : ""}${number.toFixed(2)}`;
+}
+
+function formatPrice(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? `$${number.toFixed(2)}` : "Price unavailable";
 }
 
 async function loadHeatmap() {

@@ -14,10 +14,17 @@ function resolveSymbol() {
 
 async function loadQuote() {
     let payload;
+    let quote;
     try {
-        const res = await fetch(`${API_BASE_URL}/data/ohlc?symbol=${encodeURIComponent(ACTIVE_SYMBOL)}&t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error(`OHLC request failed: ${res.status}`);
-        payload = await res.json();
+        const timestamp = Date.now();
+        const [ohlcRes, quoteRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/data/ohlc?symbol=${encodeURIComponent(ACTIVE_SYMBOL)}&t=${timestamp}`, { cache: "no-store" }),
+            fetch(`${API_BASE_URL}/data/quote?symbol=${encodeURIComponent(ACTIVE_SYMBOL)}&t=${timestamp}`, { cache: "no-store" })
+        ]);
+        if (!ohlcRes.ok) throw new Error(`OHLC request failed: ${ohlcRes.status}`);
+        if (!quoteRes.ok) throw new Error(`Quote request failed: ${quoteRes.status}`);
+        payload = await ohlcRes.json();
+        quote = await quoteRes.json();
     } catch (error) {
         payload = {
             symbol: ACTIVE_SYMBOL,
@@ -29,9 +36,10 @@ async function loadQuote() {
     const series = normalizeOhlcs(payload.ohlcs);
     const last = series[series.length - 1];
     const previous = series[series.length - 2] || last;
-    const current = numberOr(last.close, 0);
-    const change = current - numberOr(previous.close, current);
-    const percent = previous.close ? change / previous.close * 100 : 0;
+    const fallbackCurrent = numberOr(last.close, 0);
+    const current = numberOr(quote?.currentPrice, fallbackCurrent);
+    const change = numberOr(quote?.changeAmount, current - numberOr(previous.close, current));
+    const percent = numberOr(quote?.changePercent, previous.close ? change / previous.close * 100 : 0);
 
     document.getElementById("lastPrice").textContent = current.toFixed(3);
     const changeValue = document.getElementById("changeValue");

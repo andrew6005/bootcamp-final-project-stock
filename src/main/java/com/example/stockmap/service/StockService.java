@@ -117,11 +117,22 @@ public class StockService {
     }
 
     public StockQuote getLatestQuote(String symbol) {
+        return getLatestQuote(symbol, true);
+    }
+
+    private StockQuote getLatestQuote(String symbol, boolean refreshStale) {
         String cacheKey = quoteCacheKey(symbol);
         return redisCacheService.get(cacheKey, new TypeReference<StockQuote>() {})
                 .orElseGet(() -> {
                     StockQuote quote = quoteRepository.findTopBySymbolIgnoreCaseOrderByUpdateTimeDesc(symbol)
                             .orElseGet(() -> fallbackQuote(symbol));
+                    if (refreshStale && isQuoteStale(quote)) {
+                        try {
+                            quote = refreshQuote(symbol);
+                        } catch (Exception e) {
+                            log.warn("Using cached quote for {} after refresh failed: {}", symbol, e.getMessage());
+                        }
+                    }
                     redisCacheService.put(cacheKey, quote, QUOTE_CACHE_TTL);
                     return quote;
                 });
@@ -133,7 +144,7 @@ public class StockService {
                 .orElseGet(() -> {
                     List<HeatmapStockDto> heatmap = getCompanies().stream()
                             .map(company -> {
-                                StockQuote quote = getLatestQuote(company.getSymbol());
+                                StockQuote quote = getLatestQuote(company.getSymbol(), false);
                                 return new HeatmapStockDto(
                                         company.getId(),
                                         company.getSymbol(),
@@ -249,6 +260,10 @@ public class StockService {
 
     @Scheduled(fixedDelay = 300000, initialDelay = 15000)
     public void refreshAllQuotes() {
+        if (!finnhubService.isConfigured()) {
+            log.warn("Skipping quote refresh because FINNHUB_API_KEY is not configured");
+            return;
+        }
         boolean refreshedAnyQuote = false;
         for (Company company : companyRepository.findAll()) {
             try {
@@ -334,6 +349,11 @@ public class StockService {
 
     private String quoteCacheKey(String symbol) {
         return "stocks:quote:" + normalizeSymbol(symbol);
+    }
+
+    private boolean isQuoteStale(StockQuote quote) {
+        return quote.getUpdateTime() == null
+                || quote.getUpdateTime().isBefore(LocalDateTime.now().minus(QUOTE_CACHE_TTL));
     }
 
     private String ohlcCacheKey(String symbol) {

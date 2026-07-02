@@ -3,6 +3,7 @@ package com.example.stockmap.controller;
 import com.example.stockmap.dto.HeatmapStockDto;
 import com.example.stockmap.dto.StockOhlcResponse;
 import com.example.stockmap.entity.Company;
+import com.example.stockmap.entity.StockQuote;
 import com.example.stockmap.service.StockService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,11 @@ public class DataController {
             @RequestParam(required = false) String symbol
     ) {
         return stockService.getOhlcData(id, symbol);
+    }
+
+    @GetMapping("/quote")
+    public StockQuote quote(@RequestParam String symbol) {
+        return stockService.getLatestQuote(symbol);
     }
 
     @PostMapping("/profile/refresh")

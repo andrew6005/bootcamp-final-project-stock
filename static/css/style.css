@@ -70,7 +70,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 .ticker-label,
-.change-label {
+.change-label,
+.price-label {
     font-weight: 800;
     text-shadow: 0 1px 3px rgba(0,0,0,.65);
     text-anchor: middle;
